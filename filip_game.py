@@ -2,16 +2,6 @@ import numpy as np
 import copy
 import matplotlib.pyplot as plt
 
-N = 4
-
-M = 4
-
-a = np.zeros((N, M)) # grid of positions
-
-n = 3 # horizontal / vertical movements
-
-m = 2 # diagonal movements
-
 class Tree(object):
     def __init__(self):
         self.children_directions = []
@@ -85,31 +75,50 @@ class Tree(object):
         
         return allowed
 
-def generate_tree(start):
+def generate_tree(start, score_dist):
 
     children = start.create_children()
 
     if not children:
-        fig, ax = plt.subplots()
-        ax.imshow(start.data, vmin = 0, vmax = 16)
-        ax.set_title('score: ' + str(start.depth))
+        score_dist.append(start.depth)
         return start
     
     for i in children:
-        generate_tree(i)
+        generate_tree(i, score_dist)
 
 
-a[N - 1, 0] = 1
+if __name__ == '__main__':
 
-root = Tree()
+    N = 5
 
-root.data = a
-root.pos = np.array([3, 0])
-root.depth = 1
+    M = 5
 
-root.straight = 3
-root.diagonal = 2
+    a = np.zeros((N, M)) # grid of positions
 
-generate_tree(root)
+    n = 3 # horizontal / vertical movements
 
-plt.show()
+    m = 2 # diagonal movements
+
+    a[N - 1, 0] = 1
+
+    root = Tree()
+
+    root.data = a
+    root.pos = np.array([3, 0])
+    root.depth = 1
+
+    root.straight = n
+    root.diagonal = m
+
+    score_dist = []
+
+    generate_tree(root, score_dist)
+
+    fig, ax = plt.subplots()
+    lbl = '%dx%d grid with %d horizontal and %d diagonal moves' % (N, M, n, m)
+    bns = [i + 0.5 for i in range(1, N * M + 1)]
+    ax.hist(score_dist, bins = bns, label = lbl)
+    ax.set_xlabel('score')
+    ax.set_ylabel('counts')
+    ax.legend()
+    plt.show()
